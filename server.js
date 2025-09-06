@@ -12,7 +12,8 @@ app.use(bodyParser.json());
 
 // --- MongoDB connection ---
 const mongoURI =
-  "mongodb+srv://Umakumarasamy:Uma%40radio123@cluster0.o8aiaja.mongodb.net/licenseDB?retryWrites=true&w=majority&appName=Cluster0";mongoose
+  "mongodb+srv://Umakumarasamy:Uma%40radio123@cluster0.o8aiaja.mongodb.net/licenseDB?retryWrites=true&w=majority&appName=Cluster0";
+mongoose
   .connect(mongoURI)
   .then(() => console.log("✅ MongoDB Atlas connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
@@ -78,6 +79,13 @@ app.post("/activateKey", async (req, res) => {
   const license = await License.findOne({ key: licenseKey, type: "subscription" });
   if (!license) return res.json({ success: false, message: "Invalid subscription key" });
 
+  const now = new Date();
+  if (now.getTime() > license.endDate.getTime()) {
+    license.status = "Expired"; // Update status for consistency
+    await license.save();
+    return res.json({ success: false, message: "Subscription expired. Please contact admin." });
+  }
+
   if (license.deviceId && license.deviceId !== deviceId) {
     return res.json({ success: false, message: "Key already used on another device" });
   }
@@ -103,7 +111,11 @@ app.post("/validateKey", async (req, res) => {
   }
 
   const now = new Date();
-  if (now > license.endDate) return res.json({ valid: false, message: "Subscription expired. Please contact admin." });
+  if (now.getTime() > license.endDate.getTime()) {
+    license.status = "Expired"; // Update status for consistency
+    await license.save();
+    return res.json({ valid: false, message: "Subscription expired. Please contact admin." });
+  }
 
   res.json({ valid: true, message: license.type === "trial" ? "Trial active" : "Subscription active" });
 });
@@ -117,6 +129,7 @@ app.put("/extendLicense", async (req, res) => {
     if (!license) return res.json({ success: false, message: "License not found" });
 
     license.endDate = new Date(newEndDate);
+    license.status = "Active"; // Reset status if extending
     await license.save();
 
     res.json({ success: true, message: "License extended", license });
