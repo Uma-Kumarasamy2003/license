@@ -11,8 +11,8 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // --- MongoDB connection ---
-const mongoURI = process.env.MONGO_URI;
-mongoose
+const mongoURI =
+  "mongodb+srv://Umakumarasamy:Uma%40radio123@cluster0.o8aiaja.mongodb.net/licenseDB?retryWrites=true&w=majority&appName=Cluster0";mongoose
   .connect(mongoURI)
   .then(() => console.log("✅ MongoDB Atlas connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
