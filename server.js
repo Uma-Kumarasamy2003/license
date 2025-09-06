@@ -80,7 +80,10 @@ app.post("/activateKey", async (req, res) => {
   if (!license) return res.json({ success: false, message: "Invalid subscription key" });
 
   const now = new Date();
-  if (now.getTime() > license.endDate.getTime()) {
+  const endOfDay = new Date(license.endDate);
+  endOfDay.setHours(23, 59, 59, 999); // Set to end of day (11:59:59.999 PM)
+
+  if (now.getTime() > endOfDay.getTime()) {
     license.status = "Expired"; // Update status for consistency
     await license.save();
     return res.json({ success: false, message: "Subscription expired. Please contact admin." });
@@ -111,7 +114,10 @@ app.post("/validateKey", async (req, res) => {
   }
 
   const now = new Date();
-  if (now.getTime() > license.endDate.getTime()) {
+  const endOfDay = new Date(license.endDate);
+  endOfDay.setHours(23, 59, 59, 999); // Set to end of day (11:59:59.999 PM)
+
+  if (now.getTime() > endOfDay.getTime()) {
     license.status = "Expired"; // Update status for consistency
     await license.save();
     return res.json({ valid: false, message: "Subscription expired. Please contact admin." });
