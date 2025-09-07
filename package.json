@@ -1,7 +1,8 @@
 {
   "name": "license-server",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
@@ -12,6 +13,7 @@
   "dependencies": {
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "mongoose": "^8.18.0",
     "node-machine-id": "^1.1.12"

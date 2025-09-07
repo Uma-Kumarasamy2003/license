@@ -2,9 +2,9 @@ import express from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
-import pkg from "node-machine-id";
+import dotenv from "dotenv";
 
-const { machineIdSync } = pkg;
+dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -20,13 +20,13 @@ mongoose
 
 // --- License Schema ---
 const licenseSchema = new mongoose.Schema({
-  key: String,           // License Key
-  assignedTo: String,    // e.g. Alex
-  startDate: Date,       // subscription start
-  endDate: Date,         // subscription expiry
-  deviceId: String,      // bound device
+  key: String, // License Key
+  assignedTo: String, // e.g. Alex
+  startDate: Date, // subscription start
+  endDate: Date, // subscription expiry
+  deviceId: String, // bound device
   status: { type: String, default: "Active" }, // Active / Expired
-  type: String           // "trial" or "subscription"
+  type: String // "trial" or "subscription"
 });
 
 const License = mongoose.model("License", licenseSchema);
@@ -55,7 +55,8 @@ app.post("/createLicense", async (req, res) => {
 
 // --- Create Trial License ---
 app.post("/startTrial", async (req, res) => {
-  const deviceId = machineIdSync();
+  const { deviceId } = req.body;
+  if (!deviceId) return res.json({ success: false, message: "Device ID required" });
 
   const existing = await License.findOne({ deviceId, type: "trial" });
   if (existing) return res.json({ success: false, message: "Trial already used on this device" });
@@ -73,8 +74,8 @@ app.post("/startTrial", async (req, res) => {
 
 // --- Activate Subscription Key ---
 app.post("/activateKey", async (req, res) => {
-  const { licenseKey } = req.body;
-  const deviceId = machineIdSync();
+  const { licenseKey, deviceId } = req.body;
+  if (!deviceId) return res.json({ success: false, message: "Device ID required" });
 
   const license = await License.findOne({ key: licenseKey, type: "subscription" });
   if (!license) return res.json({ success: false, message: "Invalid subscription key" });
@@ -103,8 +104,8 @@ app.post("/activateKey", async (req, res) => {
 
 // --- Validate Key (Trial or Subscription) ---
 app.post("/validateKey", async (req, res) => {
-  const { licenseKey } = req.body;
-  const deviceId = machineIdSync();
+  const { licenseKey, deviceId } = req.body;
+  if (!deviceId) return res.json({ valid: false, message: "Device ID required" });
 
   const license = await License.findOne({ key: licenseKey });
   if (!license) return res.json({ valid: false, message: "Invalid key" });
