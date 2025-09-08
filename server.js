@@ -57,6 +57,7 @@ app.post("/createLicense", async (req, res) => {
 // --- Create Trial License ---
 app.post("/startTrial", async (req, res) => {
   const { deviceId } = req.body;
+  console.log('Received deviceId:', deviceId); // Debug
   if (!deviceId) return res.json({ success: false, message: "Device ID required" });
 
   const existing = await License.findOne({ deviceId, type: "trial" });
@@ -76,6 +77,7 @@ app.post("/startTrial", async (req, res) => {
 // --- Activate Subscription Key ---
 app.post("/activateKey", async (req, res) => {
   const { licenseKey, deviceId } = req.body;
+  console.log('Received deviceId:', deviceId); // Debug
   if (!deviceId) return res.json({ success: false, message: "Device ID required" });
 
   const license = await License.findOne({ key: licenseKey, type: "subscription" });
@@ -106,6 +108,7 @@ app.post("/activateKey", async (req, res) => {
 // --- Validate Key (Trial or Subscription) ---
 app.post("/validateKey", async (req, res) => {
   const { licenseKey, deviceId } = req.body;
+  console.log('Received deviceId:', deviceId); // Debug
   if (!deviceId) return res.json({ valid: false, message: "Device ID required" });
 
   const license = await License.findOne({ key: licenseKey });
