@@ -29,7 +29,7 @@ const licenseSchema = new mongoose.Schema({
 const License = mongoose.model("License", licenseSchema);
 
 app.get("/", (req, res) => {
-  res.send("✅ License Server is running!");
+  res.send("✅ License Server second time is running!");
 });
 
 // --- Create Subscription License (Admin use) ---
